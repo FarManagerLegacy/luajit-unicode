@@ -57,7 +57,7 @@ else
     echo "[diag] fallback strip tool is also missing" >&2
     exit 1
   fi
-  command -v strip
+  echo "[diag] fallback strip tool: $(command -v strip)"
   strip --version | head -n 1 || true
   TARGET_STRIP_BIN="strip"
 fi
