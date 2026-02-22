@@ -35,9 +35,10 @@ cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
 echo "[diag] gcc predefined architecture macros (host gcc)"
-echo | gcc -dM -E - | grep -E "__x86_64__|__i386__|__ARM|__aarch64__" || true
+HOST_GCC_BIN="${CC:-gcc}"
+echo | "$HOST_GCC_BIN" -dM -E - | grep -E "__x86_64__|__i386__|__ARM|__aarch64__" || true
 echo "[diag] gcc target help (host gcc)"
-gcc --help=target | grep -A2 "march" || true
+"$HOST_GCC_BIN" --help=target | grep -A2 "march" || true
 
 CC_BIN="${CROSS}gcc"
 echo "[diag] toolchain compiler: $CC_BIN"
@@ -54,7 +55,7 @@ if command -v "$STRIP_BIN" >/dev/null 2>&1; then
 else
   echo "[diag] strip tool not found: $STRIP_BIN, fallback to strip"
   if ! command -v strip >/dev/null 2>&1; then
-    echo "[diag] fallback strip tool is also missing" >&2
+    echo "[diag] strip tool not found. Install binutils or ensure strip is in PATH." >&2
     exit 1
   fi
   echo "[diag] fallback strip tool: $(command -v strip)"
