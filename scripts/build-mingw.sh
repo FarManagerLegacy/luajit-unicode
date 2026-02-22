@@ -34,16 +34,18 @@ fi
 cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
-echo "[diag] gcc predefined architecture macros (host gcc)"
 DETECTED_CC="${CC:-gcc}"
+echo "[diag] gcc predefined architecture macros (host gcc: $DETECTED_CC)"
 echo | "$DETECTED_CC" -dM -E - | grep -E "__x86_64__|__i386__|__ARM|__aarch64__" || true
-echo "[diag] gcc target help (host gcc)"
+echo "[diag] gcc target help (host gcc: $DETECTED_CC)"
 "$DETECTED_CC" --help=target | grep -A2 "march" || true
 
 TARGET_CC_BIN="${CROSS}gcc"
 echo "[diag] toolchain compiler: $TARGET_CC_BIN"
 if command -v "$TARGET_CC_BIN" >/dev/null 2>&1; then
+  echo "[diag] gcc predefined architecture macros (target gcc: $TARGET_CC_BIN)"
   echo | "$TARGET_CC_BIN" -dM -E - | grep -E "__x86_64__|__i386__|__ARM|__aarch64__" || true
+  echo "[diag] gcc target help (target gcc: $TARGET_CC_BIN)"
   "$TARGET_CC_BIN" --help=target | grep -A2 "march" || true
 fi
 
