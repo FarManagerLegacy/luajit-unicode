@@ -43,6 +43,7 @@ if not defined VSINSTALLDIR (
 )
 
 set "VSDEVCMD=%VSINSTALLDIR%\Common7\Tools\VsDevCmd.bat"
+rem Some VS environments expose VSINSTALLDIR with trailing backslash removed.
 if not exist "%VSDEVCMD%" set "VSDEVCMD=%VSINSTALLDIR%Common7\Tools\VsDevCmd.bat"
 
 call "%VSDEVCMD%" -arch=%VS_ARCH% -no_logo

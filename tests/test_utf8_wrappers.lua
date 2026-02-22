@@ -36,10 +36,13 @@ local function read_all(path)
 end
 
 local function command_ok(ret)
+  -- LuaJIT/Lua 5.1 on Windows may return boolean true, while Lua 5.2+
+  -- style semantics can return numeric zero for success.
   return ret == true or ret == 0
 end
 
 local function cmd_quote(path)
+  -- Escape CMD metacharacters with '^' and double embedded quotes.
   local escaped = path:gsub('[%%%^&|<>()!]', '^%1'):gsub('"', '""')
   return '"' .. escaped .. '"'
 end

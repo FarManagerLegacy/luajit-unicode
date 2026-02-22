@@ -118,7 +118,7 @@ Test file used in CI:
 ## Upstream hook proposal (to remove local patches later)
 
 Current LuaJIT build files do not expose extension points for adding external C
-objects cleanly. Minimal upstreamable hooks that would allow patch-free integration:
+objects cleanly. Minimal upstream-compatible hooks that would allow patch-free integration:
 
 1. `src/Makefile`:
    - add `EXTRA_TARGET_CFLAGS ?=`
