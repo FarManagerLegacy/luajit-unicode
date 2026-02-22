@@ -38,7 +38,7 @@ if "%PREPARE_ONLY%"=="1" (
   exit /b 0
 )
 
-if not defined VSINSTALLDIR if not defined VSCMD_VER (
+if not defined VSINSTALLDIR (
   echo Visual Studio build environment is not initialized.
   echo Run this script from a Visual Studio Command Prompt.
   exit /b 1
@@ -59,7 +59,10 @@ exit /b %BUILD_RC%
 :APPLY_PATCH
 set "PATCH_FILE=%~1"
 git -C "%LUAJIT_DIR%" apply --reverse --check "%PATCH_FILE%" >nul 2>&1
-if not errorlevel 1 goto :EOF
+if not errorlevel 1 (
+  echo Patch already applied: %~nx1
+  exit /b 0
+)
 
 git -C "%LUAJIT_DIR%" apply "%PATCH_FILE%"
 if errorlevel 1 exit /b 1

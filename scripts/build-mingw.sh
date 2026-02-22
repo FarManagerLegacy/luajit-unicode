@@ -39,7 +39,10 @@ apply_patch_once() {
   if git -C "$LUAJIT_DIR" apply --reverse --check "$patch_file" >/dev/null 2>&1; then
     echo "Patch already applied: $(basename "$patch_file")"
   else
-    git -C "$LUAJIT_DIR" apply "$patch_file"
+    if ! git -C "$LUAJIT_DIR" apply "$patch_file"; then
+      echo "Failed to apply patch: $patch_file" >&2
+      exit 1
+    fi
   fi
 }
 
