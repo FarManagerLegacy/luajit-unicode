@@ -129,4 +129,4 @@ jobs:
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref_name }}
           name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_name || github.ref_name }}
-          files: dist/**/*
+          files: dist/*/*
