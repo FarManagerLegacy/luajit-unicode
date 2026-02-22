@@ -5,6 +5,7 @@ chcp 65001 >nul
 set "DIR=tests\_unicode_fixture"
 set "NAME=Ελλ_中文_한국_عربي_кирил_देवनागरी"
 rem Default expected LuaJIT DLL output path from wrapper build scripts.
+rem CI can override LUAJIT_DLL when artifacts are placed somewhere else.
 if "%LUAJIT_DLL%"=="" set "LUAJIT_DLL=.work\LuaJIT\src\lua51.dll"
 
 rmdir /s /q "%DIR%" 2>nul

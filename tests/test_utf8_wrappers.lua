@@ -15,6 +15,7 @@ local function test(name, fn)
 end
 
 local DIR_WINDOWS = "tests\\_unicode_fixture"
+-- Mixed-script sample name to catch encoding/path normalization regressions.
 local NAME = "Ελλ_中文_한국_عربي_кирил_देवनागरी"
 local BASE = DIR_WINDOWS .. "\\" .. NAME
 
@@ -43,6 +44,7 @@ end
 
 local function cmd_quote(path)
   -- Escape CMD metacharacters with '^' and double embedded quotes.
+  -- This covers characters used in this suite and typical CMD command composition.
   local escaped = path:gsub('[%%%^&|<>()!]', '^%1'):gsub('"', '""')
   return '"' .. escaped .. '"'
 end
