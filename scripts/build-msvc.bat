@@ -38,6 +38,12 @@ if "%PREPARE_ONLY%"=="1" (
   exit /b 0
 )
 
+if not defined VSINSTALLDIR if not defined VSCMD_VER (
+  echo Visual Studio build environment is not initialized.
+  echo Run this script from a Visual Studio Command Prompt.
+  exit /b 1
+)
+
 if defined VSINSTALLDIR (
   call "%VSINSTALLDIR%Common7\Tools\VsDevCmd.bat" -arch=%VS_ARCH% -no_logo
   if errorlevel 1 exit /b 1
