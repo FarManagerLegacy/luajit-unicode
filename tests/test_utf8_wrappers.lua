@@ -45,7 +45,8 @@ end
 
 local function cmd_quote(path)
   -- Escape CMD metacharacters with '^' and double embedded quotes.
-  -- In the Lua pattern below, '%%' denotes a literal '%' character.
+  -- In the Lua pattern below, leading '%%' matches literal '%', while
+  -- '%X' escapes special pattern characters used in the class.
   local escaped = path:gsub('[%%%^&|<>()!%[%]]', '^%1'):gsub('"', '""')
   return '"' .. escaped .. '"'
 end

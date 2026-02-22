@@ -53,7 +53,8 @@ if not exist "%VSDEVCMD%" (
 call "%VSDEVCMD%" -arch=%VS_ARCH% -no_logo
 if errorlevel 1 exit /b 1
 
-rem Force wrapper header for relevant Lua library translation units (replaces luaconf patching).
+rem Force wrapper header for all C translation units compiled by msvcbuild.bat.
+rem Wrapper macros only activate in lib_* units where corresponding defines are present.
 set "CL=/FIutf8_wrappers.h %CL%"
 
 pushd "%LUAJIT_DIR%\src"
