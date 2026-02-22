@@ -1,0 +1,12 @@
+--- a/src/luaconf.h
++++ b/src/luaconf.h
+@@ -153,4 +153,9 @@
+ #define luai_apicheck(L, o)	{ (void)L; }
+ #endif
+ 
++#if defined(LUA_LIB) && (defined(lib_aux_c) || defined(lib_io_c) || \
++     defined(lib_package_c) || defined(lib_os_c))
++#include "utf8_wrappers.h"
++#endif
++
+ #endif
