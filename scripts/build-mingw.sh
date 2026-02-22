@@ -34,8 +34,12 @@ fi
 cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
-if ! grep -q 'lib_buffer\.o utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
-  perl -0777 -i -pe 's/(lib_buffer\.o)(\r?\nLJLIB_C=)/$1 utf8_wrappers.o$2/' "$LUAJIT_DIR/src/Makefile"
+if ! grep -Eq 'lib_buffer\.o[[:space:]]+utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
+  perl -0777 -i -pe 's/(lib_buffer\.o)([ \t]*\r?\nLJLIB_C=)/$1 utf8_wrappers.o$2/' "$LUAJIT_DIR/src/Makefile"
+  if ! grep -Eq 'lib_buffer\.o[[:space:]]+utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
+    echo "Failed to update LuaJIT src/Makefile with utf8_wrappers.o" >&2
+    exit 1
+  fi
 fi
 
 if [ "${PREPARE_ONLY:-0}" = "1" ]; then
