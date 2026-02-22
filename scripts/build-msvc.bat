@@ -44,10 +44,8 @@ if not defined VSINSTALLDIR (
   exit /b 1
 )
 
-if defined VSINSTALLDIR (
-  call "%VSINSTALLDIR%Common7\Tools\VsDevCmd.bat" -arch=%VS_ARCH% -no_logo
-  if errorlevel 1 exit /b 1
-)
+call "%VSINSTALLDIR%Common7\Tools\VsDevCmd.bat" -arch=%VS_ARCH% -no_logo
+if errorlevel 1 exit /b 1
 
 pushd "%LUAJIT_DIR%\src"
 call msvcbuild.bat %*
