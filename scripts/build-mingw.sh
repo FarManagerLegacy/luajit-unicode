@@ -53,7 +53,11 @@ if command -v "$STRIP_BIN" >/dev/null 2>&1; then
   TARGET_STRIP_BIN="$STRIP_BIN"
 else
   echo "[diag] strip tool not found: $STRIP_BIN, fallback to strip"
-  command -v strip || true
+  if ! command -v strip >/dev/null 2>&1; then
+    echo "[diag] fallback strip tool is also missing" >&2
+    exit 1
+  fi
+  command -v strip
   strip --version | head -n 1 || true
   TARGET_STRIP_BIN="strip"
 fi
