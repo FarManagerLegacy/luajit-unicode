@@ -106,8 +106,10 @@ for /f "usebackq tokens=*" %%i in (`"%VSW%" -latest -requires Microsoft.VisualSt
   set "VS_PATH=%%i"
 )
 if "%VS_PATH%"=="" (
-  echo Unable to locate Visual Studio installation with C++ tools.
+  echo Unable to locate Visual Studio installation with VC tools ^
+(vswhere returned no matching path).
   exit /b 1
 )
 set "VSINSTALLDIR=%VS_PATH%"
+if not "%VSINSTALLDIR:~-1%"=="\" set "VSINSTALLDIR=%VSINSTALLDIR%\"
 exit /b 0
