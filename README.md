@@ -100,3 +100,16 @@ Useful variables:
 - `WORK_DIR` (default: `.work`)
 - `LUAJIT_DIR` (default: `%WORK_DIR%\LuaJIT`)
 - `PREPARE_ONLY=1` (download + patch, no build)
+
+## CI and releases
+
+- PR CI builds patched LuaJIT on Windows for MinGW/MSVC and runs UTF-8 wrapper tests
+  for runnable targets (`win32`, `x64`).
+- ARM64 jobs are built in CI and release workflows, but runtime tests are skipped there.
+- Release workflow can be started manually (`workflow_dispatch`) with:
+  - `luajit_ref` (LuaJIT ref to build from),
+  - `release_tag` (tag for the GitHub Release),
+  - `release_name` (optional release title).
+
+Test file used in CI:
+- `tests/test_utf8_wrappers.lua`
