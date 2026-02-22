@@ -44,8 +44,7 @@ end
 
 local function cmd_quote(path)
   -- Escape CMD metacharacters with '^' and double embedded quotes.
-  -- This covers characters used in this suite and typical CMD command composition.
-  local escaped = path:gsub('[%%%^&|<>()!]', '^%1'):gsub('"', '""')
+  local escaped = path:gsub('[%%%^&|<>()!%[%]]', '^%1'):gsub('"', '""')
   return '"' .. escaped .. '"'
 end
 
