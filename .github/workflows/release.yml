@@ -1,0 +1,132 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      luajit_ref:
+        description: "LuaJIT git ref (tag/branch/commit)"
+        required: true
+        default: "v2.1"
+      release_tag:
+        description: "Release tag to publish"
+        required: true
+      release_name:
+        description: "Release title"
+        required: false
+        default: "LuaJIT Unicode build"
+  push:
+    tags:
+      - "release-*"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      LUAJIT_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.luajit_ref || 'v2.1' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - toolchain: mingw
+            target_arch: win32
+            run_tests: true
+          - toolchain: mingw
+            target_arch: x64
+            run_tests: true
+          - toolchain: mingw
+            target_arch: arm64
+            run_tests: false
+          - toolchain: msvc
+            target_arch: win32
+            run_tests: true
+          - toolchain: msvc
+            target_arch: x64
+            run_tests: true
+          - toolchain: msvc
+            target_arch: arm64
+            run_tests: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSYS2 toolchains (MinGW)
+        if: matrix.toolchain == 'mingw'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-i686-gcc
+            mingw-w64-aarch64-gcc
+
+      - name: Resolve Visual Studio installation (MSVC)
+        if: matrix.toolchain == 'msvc'
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vswhere -latest -products * -property installationPath
+          if (-not $vsPath) { throw "Visual Studio installation path not found" }
+          "VSINSTALLDIR=$vsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build patched LuaJIT (MinGW)
+        if: matrix.toolchain == 'mingw'
+        shell: msys2 {0}
+        run: |
+          HOST_CC=gcc \
+          LUAJIT_REF=$LUAJIT_REF \
+          TARGET_ARCH=${{ matrix.target_arch }} \
+          ./scripts/build-mingw.sh
+
+      - name: Build patched LuaJIT (MSVC)
+        if: matrix.toolchain == 'msvc'
+        shell: cmd
+        run: |
+          set LUAJIT_REF=%LUAJIT_REF%
+          set TARGET_ARCH=${{ matrix.target_arch }}
+          scripts\build-msvc.bat
+
+      - name: Run UTF-8 wrapper tests (MinGW)
+        if: matrix.toolchain == 'mingw' && matrix.run_tests
+        shell: msys2 {0}
+        run: ./.work/LuaJIT/src/luajit.exe tests/test_utf8_wrappers.lua
+
+      - name: Run UTF-8 wrapper tests (MSVC)
+        if: matrix.toolchain == 'msvc' && matrix.run_tests
+        shell: cmd
+        run: .work\LuaJIT\src\luajit.exe tests\test_utf8_wrappers.lua
+
+      - name: Package artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path out -Force | Out-Null
+          $prefix = "luajit-unicode-${{ matrix.toolchain }}-${{ matrix.target_arch }}"
+          Copy-Item .work\LuaJIT\src\luajit.exe "out\$prefix-luajit.exe"
+          if (Test-Path .work\LuaJIT\src\lua51.dll) { Copy-Item .work\LuaJIT\src\lua51.dll "out\$prefix-lua51.dll" }
+          if (Test-Path .work\LuaJIT\src\lua51.lib) { Copy-Item .work\LuaJIT\src\lua51.lib "out\$prefix-lua51.lib" }
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.toolchain }}-${{ matrix.target_arch }}
+          path: out/*
+
+  publish-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref_name }}
+          name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_name || github.ref_name }}
+          files: dist/**/*

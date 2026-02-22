@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-mingw:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target_arch: win32
+            run_tests: true
+          - target_arch: x64
+            run_tests: true
+          - target_arch: arm64
+            run_tests: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSYS2 toolchains
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-i686-gcc
+            mingw-w64-aarch64-gcc
+
+      - name: Build patched LuaJIT (MinGW)
+        shell: msys2 {0}
+        run: HOST_CC=gcc TARGET_ARCH=${{ matrix.target_arch }} ./scripts/build-mingw.sh
+
+      - name: Run UTF-8 wrapper tests (MinGW)
+        if: matrix.run_tests
+        shell: msys2 {0}
+        run: ./.work/LuaJIT/src/luajit.exe tests/test_utf8_wrappers.lua
+
+      - name: Upload MinGW artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: luajit-mingw-${{ matrix.target_arch }}
+          path: |
+            .work/LuaJIT/src/luajit.exe
+            .work/LuaJIT/src/lua51.dll
+            .work/LuaJIT/src/lua51.lib
+
+  build-msvc:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target_arch: win32
+            run_tests: true
+          - target_arch: x64
+            run_tests: true
+          - target_arch: arm64
+            run_tests: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve Visual Studio installation
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vswhere -latest -products * -property installationPath
+          if (-not $vsPath) { throw "Visual Studio installation path not found" }
+          "VSINSTALLDIR=$vsPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build patched LuaJIT (MSVC)
+        shell: cmd
+        run: |
+          set TARGET_ARCH=${{ matrix.target_arch }}
+          scripts\build-msvc.bat
+
+      - name: Run UTF-8 wrapper tests (MSVC)
+        if: matrix.run_tests
+        shell: cmd
+        run: .work\LuaJIT\src\luajit.exe tests\test_utf8_wrappers.lua
+
+      - name: Upload MSVC artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: luajit-msvc-${{ matrix.target_arch }}
+          path: |
+            .work/LuaJIT/src/luajit.exe
+            .work/LuaJIT/src/lua51.dll
+            .work/LuaJIT/src/lua51.lib
