@@ -9,8 +9,9 @@ This repository now provides standalone scripts that:
 
 1. download LuaJIT sources automatically;
 2. copy `utf8_wrappers.{c,h}` into LuaJIT `src/`;
-3. apply patch files automatically;
-4. run LuaJIT native build scripts for each toolchain.
+3. force-include `utf8_wrappers.h` via compiler flags;
+4. apply minimal patch files only where extra objects need to be added;
+5. run LuaJIT native build scripts for each toolchain.
 
 ## Implementation options analysis
 
@@ -22,13 +23,12 @@ This repository now provides standalone scripts that:
 - **Pros:** no source patch files.
 - **Cons:** brittle for LuaJIT internals, hard to inject `utf8_wrappers.c` into both GNU Make and `msvcbuild.bat` flows, harder to support all targets consistently.
 
-### Option 3 (implemented): Patch-based automation wrapper
-- **Pros:** reproducible, explicit, works with upstream LuaJIT build logic, no manual edits in LuaJIT tree, supports separate MinGW/MSVC workflows.
-- **Cons:** patch files may need refresh if upstream LuaJIT layout changes.
+### Option 3 (implemented): Hybrid wrapper (forced include + minimal patches)
+- **Pros:** reproducible, avoids patching `luaconf.h`, keeps patch scope smaller, supports separate MinGW/MSVC workflows.
+- **Cons:** object list integration is still patched in upstream build scripts.
 
 ## Files
 
-- `patches/luajit-luaconf-unicode.patch`
 - `patches/luajit-makefile-unicode.patch` (MinGW/GNU Make flow)
 - `patches/luajit-msvcbuild-unicode.patch` (MSVC flow)
 - `scripts/build-mingw.sh`
@@ -113,3 +113,21 @@ Useful variables:
 
 Test file used in CI:
 - `tests/test_utf8_wrappers.lua`
+- Fixture setup script: `tests/test_setup.cmd`
+
+## Upstream hook proposal (to remove local patches later)
+
+Current LuaJIT build files do not expose extension points for adding external C
+objects cleanly. Minimal upstreamable hooks that would allow patch-free integration:
+
+1. `src/Makefile`:
+   - add `EXTRA_TARGET_CFLAGS ?=`
+   - add `EXTRA_LJLIB_O ?=`
+   - append them to `TARGET_CFLAGS` and `LJLIB_O`.
+2. `src/msvcbuild.bat`:
+   - add optional env vars like `LJ_EXTRA_CFILES`, `LJ_EXTRA_OBJS`, `LJ_EXTRA_CFLAGS`
+   - append them in compile/link commands.
+3. Keep default behavior unchanged when these vars are not set.
+
+With these hooks, this repository could switch to pure wrapper scripts without any
+content patches to upstream files.
