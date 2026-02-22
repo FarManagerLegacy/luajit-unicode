@@ -39,11 +39,8 @@ if "%PREPARE_ONLY%"=="1" (
   exit /b 0
 )
 
-if not defined VSINSTALLDIR (
-  echo Visual Studio build environment is not initialized.
-  echo Run this script from a Visual Studio Command Prompt.
-  exit /b 1
-)
+if not defined VSINSTALLDIR call :RESOLVE_VSINSTALLDIR
+if errorlevel 1 exit /b 1
 
 set "VSDEVCMD=%VSINSTALLDIR%\Common7\Tools\VsDevCmd.bat"
 rem Some VS environments expose VSINSTALLDIR with trailing backslash removed.
@@ -90,9 +87,27 @@ if not errorlevel 1 (
   exit /b 0
 )
 
-git -C "%LUAJIT_DIR%" apply "%PATCH_FILE%"
+git -C "%LUAJIT_DIR%" apply -3 "%PATCH_FILE%"
+if errorlevel 1 git -C "%LUAJIT_DIR%" apply "%PATCH_FILE%"
 if errorlevel 1 (
   echo Failed to apply patch: %PATCH_FILE%
   exit /b 1
 )
+exit /b 0
+
+:RESOLVE_VSINSTALLDIR
+set "VSW=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+if not exist "%VSW%" (
+  echo vswhere.exe not found: %VSW%
+  exit /b 1
+)
+set "VS_PATH="
+for /f "usebackq tokens=*" %%i in (`"%VSW%" -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
+  set "VS_PATH=%%i"
+)
+if "%VS_PATH%"=="" (
+  echo Unable to locate Visual Studio installation with C++ tools.
+  exit /b 1
+)
+set "VSINSTALLDIR=%VS_PATH%"
 exit /b 0
