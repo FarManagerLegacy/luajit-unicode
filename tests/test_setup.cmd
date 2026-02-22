@@ -18,7 +18,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "Set-Content -LiteralPath (Join-Path $dir ($name + '.lua')) -Value 'return ''lua-fixture-ok''' -Encoding UTF8;" ^
   "Set-Content -LiteralPath (Join-Path $dir ('rename_src_' + $name + '.txt')) -Value 'rename-source' -Encoding UTF8;" ^
   "$cdir = Join-Path $dir ('lib_' + $name); New-Item -ItemType Directory -Path $cdir -Force | Out-Null;" ^
-  "Copy-Item '%LUAJIT_DLL%' (Join-Path $cdir 'modffi.dll') -Force;" ^
+  "Copy-Item '%LUAJIT_DLL%' (Join-Path $cdir 'jitmod.dll') -Force;" ^
   "Set-Content -LiteralPath (Join-Path $dir 'setup_done.txt') -Value 'ok' -Encoding ASCII;"
 if errorlevel 1 exit /b 1
 
