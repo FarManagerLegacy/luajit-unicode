@@ -34,7 +34,7 @@ jobs:
             make
             mingw-w64-x86_64-gcc
             mingw-w64-i686-gcc
-            mingw-w64-aarch64-gcc
+            mingw-w64-clang-aarch64-gcc
 
       - name: Build patched LuaJIT (MinGW)
         shell: msys2 {0}
@@ -43,6 +43,8 @@ jobs:
       - name: Run UTF-8 wrapper tests (MinGW)
         if: matrix.run_tests
         shell: msys2 {0}
+        env:
+          IAT_TEST_VAR: Ελλ_中文_한국_عربي_кирил_देवनागरी
         run: ./.work/LuaJIT/src/luajit.exe tests/test_utf8_wrappers.lua
 
       - name: Upload MinGW artifacts
@@ -87,7 +89,10 @@ jobs:
       - name: Run UTF-8 wrapper tests (MSVC)
         if: matrix.run_tests
         shell: cmd
-        run: .work\LuaJIT\src\luajit.exe tests\test_utf8_wrappers.lua
+        run: |
+          chcp 65001 >nul
+          set IAT_TEST_VAR=Ελλ_中文_한국_عربي_кирил_देवनागरी
+          .work\LuaJIT\src\luajit.exe tests\test_utf8_wrappers.lua
 
       - name: Upload MSVC artifacts
         uses: actions/upload-artifact@v4

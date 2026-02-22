@@ -46,7 +46,6 @@ apply_patch_once() {
   fi
 }
 
-apply_patch_once "$ROOT_DIR/patches/luajit-luaconf-unicode.patch"
 apply_patch_once "$ROOT_DIR/patches/luajit-makefile-unicode.patch"
 
 if [ "${PREPARE_ONLY:-0}" = "1" ]; then
@@ -54,4 +53,9 @@ if [ "${PREPARE_ONLY:-0}" = "1" ]; then
   exit 0
 fi
 
-make -C "$LUAJIT_DIR/src" HOST_CC="$HOST_CC" CROSS="$CROSS" TARGET_SYS=Windows "$@"
+make -C "$LUAJIT_DIR/src" \
+  HOST_CC="$HOST_CC" \
+  CROSS="$CROSS" \
+  TARGET_SYS=Windows \
+  TARGET_CFLAGS="${TARGET_CFLAGS:-} -include utf8_wrappers.h" \
+  "$@"

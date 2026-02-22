@@ -28,8 +28,6 @@ if errorlevel 1 exit /b 1
 copy /Y "%ROOT_DIR%\src\utf8_wrappers.h" "%LUAJIT_DIR%\src\utf8_wrappers.h" >nul
 if errorlevel 1 exit /b 1
 
-call :APPLY_PATCH "%ROOT_DIR%\patches\luajit-luaconf-unicode.patch"
-if errorlevel 1 exit /b 1
 call :APPLY_PATCH "%ROOT_DIR%\patches\luajit-msvcbuild-unicode.patch"
 if errorlevel 1 exit /b 1
 
@@ -44,8 +42,10 @@ if not defined VSINSTALLDIR (
   exit /b 1
 )
 
-call "%VSINSTALLDIR%Common7\Tools\VsDevCmd.bat" -arch=%VS_ARCH% -no_logo
+call "%VSINSTALLDIR%\Common7\Tools\VsDevCmd.bat" -arch=%VS_ARCH% -no_logo
 if errorlevel 1 exit /b 1
+
+set "CL=/FIutf8_wrappers.h %CL%"
 
 pushd "%LUAJIT_DIR%\src"
 call msvcbuild.bat %*
