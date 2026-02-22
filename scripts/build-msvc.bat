@@ -41,27 +41,16 @@ if "%PREPARE_ONLY%"=="1" (
 
 if not defined VSINSTALLDIR call :RESOLVE_VSINSTALLDIR
 if errorlevel 1 exit /b 1
+if not "%VSINSTALLDIR:~-1%"=="\" set "VSINSTALLDIR=%VSINSTALLDIR%\"
 
-set "VSDEVCMD=%VSINSTALLDIR%\Common7\Tools\VsDevCmd.bat"
-rem Some VS environments expose VSINSTALLDIR with trailing backslash removed.
-if not exist "%VSDEVCMD%" set "VSDEVCMD=%VSINSTALLDIR%Common7\Tools\VsDevCmd.bat"
-if not exist "%VSDEVCMD%" (
-  echo Failed to locate VsDevCmd.bat under VSINSTALLDIR=%VSINSTALLDIR%
+set "VCVARSALL=%VSINSTALLDIR%VC\Auxiliary\Build\vcvarsall.bat"
+if not exist "%VCVARSALL%" (
+  echo Failed to locate vcvarsall.bat under VSINSTALLDIR=%VSINSTALLDIR%
   exit /b 1
 )
 
-call "%VSDEVCMD%" -arch=%VS_ARCH% -no_logo
+call "%VCVARSALL%" %VCVARS_ARCH%
 if errorlevel 1 exit /b 1
-where cl >nul 2>&1
-if errorlevel 1 (
-  set "VCVARSALL=%VSINSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat"
-  if not exist "%VCVARSALL%" (
-    echo Failed to locate vcvarsall.bat under VSINSTALLDIR=%VSINSTALLDIR%
-    exit /b 1
-  )
-  call "%VCVARSALL%" %VCVARS_ARCH%
-  if errorlevel 1 exit /b 1
-)
 where cl >nul 2>&1
 if errorlevel 1 (
   echo MSVC compiler tools are not available after environment initialization.

@@ -34,21 +34,9 @@ fi
 cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
-apply_patch_once() {
-  local patch_file="$1"
-  if git -C "$LUAJIT_DIR" apply --reverse --check "$patch_file" >/dev/null 2>&1; then
-    echo "Patch already applied: $(basename "$patch_file")"
-  else
-    if ! git -C "$LUAJIT_DIR" apply -3 "$patch_file"; then
-      if ! git -C "$LUAJIT_DIR" apply "$patch_file"; then
-        echo "Failed to apply patch: $patch_file" >&2
-        exit 1
-      fi
-    fi
-  fi
-}
-
-apply_patch_once "$ROOT_DIR/patches/luajit-makefile-unicode.patch"
+if ! grep -q 'lib_buffer\.o utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
+  perl -0777 -i -pe 's/(lib_buffer\.o)(\r?\nLJLIB_C=)/$1 utf8_wrappers.o$2/' "$LUAJIT_DIR/src/Makefile"
+fi
 
 if [ "${PREPARE_ONLY:-0}" = "1" ]; then
   echo "Prepared LuaJIT sources in $LUAJIT_DIR"
