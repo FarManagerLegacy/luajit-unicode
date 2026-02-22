@@ -1,6 +1,6 @@
-local base = "тест_юникод_файл"
-local original = base .. ".txt"
-local renamed = base .. ".renamed.txt"
+local filename_prefix = "тест_юникод_файл"
+local original = filename_prefix .. ".txt"
+local renamed = filename_prefix .. ".renamed.txt"
 
 local function cleanup()
   os.remove(original)
