@@ -34,7 +34,6 @@ jobs:
             make
             mingw-w64-x86_64-gcc
             mingw-w64-i686-gcc
-            # Cross package naming in MSYS2 follows clang repo naming.
             mingw-w64-clang-aarch64-gcc
 
       - name: Build patched LuaJIT (MinGW)

@@ -16,6 +16,9 @@ if /I not "%TARGET_ARCH%"=="win32" if /I not "%TARGET_ARCH%"=="x64" if /I not "%
 if /I "%TARGET_ARCH%"=="win32" set "VS_ARCH=x86"
 if /I "%TARGET_ARCH%"=="x64" set "VS_ARCH=x64"
 if /I "%TARGET_ARCH%"=="arm64" set "VS_ARCH=arm64"
+if /I "%TARGET_ARCH%"=="win32" set "VCVARS_ARCH=x86"
+if /I "%TARGET_ARCH%"=="x64" set "VCVARS_ARCH=x64"
+if /I "%TARGET_ARCH%"=="arm64" set "VCVARS_ARCH=amd64_arm64"
 
 if not exist "%WORK_DIR%" mkdir "%WORK_DIR%"
 if not exist "%LUAJIT_DIR%\.git" (
@@ -52,6 +55,21 @@ if not exist "%VSDEVCMD%" (
 
 call "%VSDEVCMD%" -arch=%VS_ARCH% -no_logo
 if errorlevel 1 exit /b 1
+where cl >nul 2>&1
+if errorlevel 1 (
+  set "VCVARSALL=%VSINSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat"
+  if not exist "%VCVARSALL%" set "VCVARSALL=%VSINSTALLDIR%VC\Auxiliary\Build\vcvarsall.bat"
+  if not exist "%VCVARSALL%" (
+    echo Failed to locate vcvarsall.bat under VSINSTALLDIR=%VSINSTALLDIR%
+    exit /b 1
+  )
+  call "%VCVARSALL%" %VCVARS_ARCH%
+)
+where cl >nul 2>&1
+if errorlevel 1 (
+  echo MSVC compiler tools are not available after environment initialization.
+  exit /b 1
+)
 
 rem Force wrapper header for all C translation units compiled by msvcbuild.bat.
 rem Wrapper macros only activate in lib_* units where corresponding defines are present.
