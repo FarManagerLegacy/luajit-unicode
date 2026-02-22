@@ -58,7 +58,6 @@ if errorlevel 1 exit /b 1
 where cl >nul 2>&1
 if errorlevel 1 (
   set "VCVARSALL=%VSINSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat"
-  if not exist "%VCVARSALL%" set "VCVARSALL=%VSINSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat"
   if not exist "%VCVARSALL%" (
     echo Failed to locate vcvarsall.bat under VSINSTALLDIR=%VSINSTALLDIR%
     exit /b 1
