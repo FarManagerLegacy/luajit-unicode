@@ -25,7 +25,7 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      LUAJIT_REF: ${{ github.event.inputs.luajit_ref }}
+      LUAJIT_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.luajit_ref || 'v2.1' }}
     strategy:
       fail-fast: false
       matrix:
@@ -96,6 +96,7 @@ jobs:
         shell: msys2 {0}
         env:
           IAT_TEST_VAR: Ελλ_中文_한국_عربي_кирил_देवनागरी
+          LUAJIT_DLL: .work/LuaJIT/src/lua51.dll
         run: ./.work/LuaJIT/src/luajit.exe tests/test_utf8_wrappers.lua
 
       - name: Run UTF-8 wrapper tests (MSVC)
@@ -104,6 +105,7 @@ jobs:
         run: |
           chcp 65001 >nul
           set IAT_TEST_VAR=Ελλ_中文_한국_عربي_кирил_देवनागरी
+          set LUAJIT_DLL=.work\LuaJIT\src\lua51.dll
           .work\LuaJIT\src\luajit.exe tests\test_utf8_wrappers.lua
 
       - name: Package artifacts

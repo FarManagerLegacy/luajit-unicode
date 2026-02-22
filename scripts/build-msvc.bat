@@ -42,7 +42,10 @@ if not defined VSINSTALLDIR (
   exit /b 1
 )
 
-call "%VSINSTALLDIR%\Common7\Tools\VsDevCmd.bat" -arch=%VS_ARCH% -no_logo
+set "VSDEVCMD=%VSINSTALLDIR%\Common7\Tools\VsDevCmd.bat"
+if not exist "%VSDEVCMD%" set "VSDEVCMD=%VSINSTALLDIR%Common7\Tools\VsDevCmd.bat"
+
+call "%VSDEVCMD%" -arch=%VS_ARCH% -no_logo
 if errorlevel 1 exit /b 1
 
 set "CL=/FIutf8_wrappers.h %CL%"

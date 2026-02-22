@@ -1,4 +1,5 @@
 local PASS, FAIL = 0, 0
+-- This test intentionally targets Windows path APIs and wrappers only.
 
 local function test(name, fn)
   io.write("[TEST] " .. name)
