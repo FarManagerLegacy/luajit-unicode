@@ -40,6 +40,19 @@ This repository now provides standalone scripts that:
 TARGET_ARCH=x64 ./scripts/build-mingw.sh
 ```
 
+Ready-to-run commands for each target:
+
+```bash
+# Win32
+TARGET_ARCH=win32 ./scripts/build-mingw.sh
+
+# x64
+TARGET_ARCH=x64 ./scripts/build-mingw.sh
+
+# ARM64
+TARGET_ARCH=arm64 ./scripts/build-mingw.sh
+```
+
 Supported `TARGET_ARCH` values:
 - `win32` (i686 toolchain)
 - `x64` (x86_64 toolchain)
@@ -58,6 +71,22 @@ Open the appropriate Visual Studio command prompt for target architecture
 
 ```bat
 set TARGET_ARCH=x64
+scripts\build-msvc.bat
+```
+
+Ready-to-run commands for each target:
+
+```bat
+:: Win32
+set TARGET_ARCH=win32
+scripts\build-msvc.bat
+
+:: x64
+set TARGET_ARCH=x64
+scripts\build-msvc.bat
+
+:: ARM64
+set TARGET_ARCH=arm64
 scripts\build-msvc.bat
 ```
 
