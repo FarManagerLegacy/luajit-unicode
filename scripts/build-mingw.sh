@@ -57,7 +57,7 @@ if command -v "$STRIP_BIN" >/dev/null 2>&1; then
 else
   echo "[diag] strip tool not found: $STRIP_BIN, fallback to strip"
   if ! command -v strip >/dev/null 2>&1; then
-    echo "[diag] strip tool not found. Install binutils or ensure strip is in PATH." >&2
+    echo "[diag] strip tool not found ($STRIP_BIN and strip). Install binutils or ensure strip is in PATH." >&2
     exit 1
   fi
   echo "[diag] fallback strip tool: $(command -v strip)"
