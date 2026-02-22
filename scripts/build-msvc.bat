@@ -30,6 +30,8 @@ copy /Y "%ROOT_DIR%\src\utf8_wrappers.c" "%LUAJIT_DIR%\src\utf8_wrappers.c" >nul
 if errorlevel 1 exit /b 1
 copy /Y "%ROOT_DIR%\src\utf8_wrappers.h" "%LUAJIT_DIR%\src\utf8_wrappers.h" >nul
 if errorlevel 1 exit /b 1
+echo [diag] utf8 wrapper files in LuaJIT src:
+dir "%LUAJIT_DIR%\src\utf8_wrappers.*"
 
 call :APPLY_PATCH "%ROOT_DIR%\patches\luajit-msvcbuild-unicode.patch"
 if errorlevel 1 exit /b 1
@@ -59,7 +61,7 @@ if errorlevel 1 (
 
 rem Force wrapper header for all C translation units compiled by msvcbuild.bat.
 rem Wrapper macros only activate in lib_* units where corresponding defines are present.
-set "CL=/FI\"%LUAJIT_DIR%\src\utf8_wrappers.h\" %CL%"
+set "CL=/FIutf8_wrappers.h %CL%"
 
 pushd "%LUAJIT_DIR%\src"
 call msvcbuild.bat %*

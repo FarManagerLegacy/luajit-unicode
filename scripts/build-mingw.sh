@@ -34,6 +34,30 @@ fi
 cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
+echo "[diag] gcc predefined architecture macros (host gcc)"
+echo | gcc -dM -E - | grep -E "__x86_64__|__i386__|__ARM|__aarch64__" || true
+echo "[diag] gcc target help (host gcc)"
+gcc --help=target | grep -A2 "march" || true
+
+CC_BIN="${CROSS}gcc"
+echo "[diag] toolchain compiler: $CC_BIN"
+if command -v "$CC_BIN" >/dev/null 2>&1; then
+  echo | "$CC_BIN" -dM -E - | grep -E "__x86_64__|__i386__|__ARM|__aarch64__" || true
+  "$CC_BIN" --help=target | grep -A2 "march" || true
+fi
+
+STRIP_BIN="${CROSS}strip"
+if command -v "$STRIP_BIN" >/dev/null 2>&1; then
+  echo "[diag] strip tool: $STRIP_BIN"
+  "$STRIP_BIN" --version | head -n 1 || true
+  TARGET_STRIP_BIN="$STRIP_BIN"
+else
+  echo "[diag] strip tool not found: $STRIP_BIN, fallback to strip"
+  command -v strip || true
+  strip --version | head -n 1 || true
+  TARGET_STRIP_BIN="strip"
+fi
+
 if ! grep -Eq 'lib_buffer\.o[[:space:]]+utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
   perl -0777 -i -pe 's/(lib_buffer\.o)([ \t]*\r?\nLJLIB_C=)/$1 utf8_wrappers.o$2/' "$LUAJIT_DIR/src/Makefile"
   if ! grep -Eq 'lib_buffer\.o[[:space:]]+utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
@@ -52,5 +76,6 @@ make -C "$LUAJIT_DIR/src" \
   CROSS="$CROSS" \
   TARGET_SYS=Windows \
   TARGET_CFLAGS="${TARGET_CFLAGS:-} -include utf8_wrappers.h" \
+  TARGET_STRIP="$TARGET_STRIP_BIN" \
   TARGET_ARCH= \
   "$@"
