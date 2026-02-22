@@ -63,6 +63,7 @@ if errorlevel 1 (
     exit /b 1
   )
   call "%VCVARSALL%" %VCVARS_ARCH%
+  if errorlevel 1 exit /b 1
 )
 where cl >nul 2>&1
 if errorlevel 1 (
