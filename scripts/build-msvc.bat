@@ -63,5 +63,8 @@ if not errorlevel 1 (
 )
 
 git -C "%LUAJIT_DIR%" apply "%PATCH_FILE%"
-if errorlevel 1 exit /b 1
+if errorlevel 1 (
+  echo Failed to apply patch: %PATCH_FILE%
+  exit /b 1
+)
 exit /b 0
