@@ -52,4 +52,5 @@ make -C "$LUAJIT_DIR/src" \
   CROSS="$CROSS" \
   TARGET_SYS=Windows \
   TARGET_CFLAGS="${TARGET_CFLAGS:-} -include utf8_wrappers.h" \
+  TARGET_ARCH= \
   "$@"

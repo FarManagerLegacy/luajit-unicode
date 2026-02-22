@@ -59,7 +59,7 @@ if errorlevel 1 (
 
 rem Force wrapper header for all C translation units compiled by msvcbuild.bat.
 rem Wrapper macros only activate in lib_* units where corresponding defines are present.
-set "CL=/FIutf8_wrappers.h %CL%"
+set "CL=/FI\"%LUAJIT_DIR%\src\utf8_wrappers.h\" %CL%"
 
 pushd "%LUAJIT_DIR%\src"
 call msvcbuild.bat %*
@@ -76,8 +76,7 @@ if not errorlevel 1 (
   exit /b 0
 )
 
-git -C "%LUAJIT_DIR%" apply -3 "%PATCH_FILE%"
-if errorlevel 1 git -C "%LUAJIT_DIR%" apply "%PATCH_FILE%"
+git -C "%LUAJIT_DIR%" apply "%PATCH_FILE%"
 if errorlevel 1 (
   echo Failed to apply patch: %PATCH_FILE%
   exit /b 1
