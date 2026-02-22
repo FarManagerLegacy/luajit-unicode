@@ -38,12 +38,14 @@ end
 
 local function command_ok(ret)
   -- LuaJIT/Lua 5.1 on Windows may return boolean true, while Lua 5.2+
-  -- style semantics can return numeric zero for success.
+  -- style semantics can return numeric zero for success. Failure values differ
+  -- by version, so callers should only use this as a success predicate.
   return ret == true or ret == 0
 end
 
 local function cmd_quote(path)
   -- Escape CMD metacharacters with '^' and double embedded quotes.
+  -- In the Lua pattern below, '%%' denotes a literal '%' character.
   local escaped = path:gsub('[%%%^&|<>()!%[%]]', '^%1'):gsub('"', '""')
   return '"' .. escaped .. '"'
 end
