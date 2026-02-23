@@ -180,7 +180,7 @@ local function run_suite()
     assert(type(val) == "string", "unexpected env value type: expected string")
     assert(val ~= "", "unexpected empty env value")
     if not has_non_ascii(val) then
-      io.write("[WARN] IAT_TEST_VAR lost Unicode in this shell environment\n")
+      io.stderr:write("[WARN] IAT_TEST_VAR lost Unicode in this shell environment\n")
     else
       assert(val == NAME, "unexpected Unicode env value: " .. tostring(val))
     end
