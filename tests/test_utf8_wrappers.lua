@@ -99,7 +99,7 @@ local function run_suite()
     assert(mod == "lua-fixture-ok")
   end)
 
-  test("io.write Unicode path", function()
+  test("io.open write Unicode path", function()
     local path = BASE .. "_写入_запись.txt"
     assert(has_non_ascii(path), "path must contain Unicode")
     local f, err = io.open(path, "wb")
