@@ -34,6 +34,24 @@ This repository now provides standalone scripts that:
 - `scripts/build-mingw.sh`
 - `scripts/build-msvc.bat`
 
+## Imported-symbol audit (Windows)
+
+Based on the current LuaJIT import list, the path/command/environment APIs that
+need UTF-8 adaptation are already covered in `utf8_wrappers`:
+
+- `fopen` / `freopen`
+- `remove`
+- `rename`
+- `_popen`
+- `system`
+- `getenv`
+- `GetModuleFileNameA`
+- `LoadLibraryExA`
+
+Most other imported symbols from the list are math/runtime/threading/memory APIs
+or descriptor-level file APIs (`_write`, `_lseeki64`, `_fileno`, etc.) that do
+not accept path strings and therefore do not need Unicode path wrappers.
+
 ## MinGW usage
 
 ```bash
