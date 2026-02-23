@@ -69,6 +69,15 @@ local function cleanup_fixtures()
   os.execute('cmd /c rmdir /s /q ' .. cmd_quote(DIR_WINDOWS))
 end
 
+local function ensure_fixture(path, content)
+  if file_exists(path) then
+    return
+  end
+  local f = assert(io.open(path, "wb"))
+  f:write(content)
+  f:close()
+end
+
 local function run_suite()
   local setup_ret = os.execute("cmd /c tests\\test_setup.cmd")
   assert(command_ok(setup_ret), "test_setup.cmd failed: " .. tostring(setup_ret))
@@ -81,26 +90,10 @@ local function run_suite()
   PATH_EXEC_MARKER = BASE .. "_exec_marker.txt"
   PATH_LOADLIB_STUB = BASE .. "_loadlib_stub.dll"
 
-  if not file_exists(BASE .. ".txt") then
-    local f = assert(io.open(BASE .. ".txt", "wb"))
-    f:write("fixture-content")
-    f:close()
-  end
-  if not file_exists(BASE .. ".lua") then
-    local f = assert(io.open(BASE .. ".lua", "wb"))
-    f:write("return 'lua-fixture-ok'")
-    f:close()
-  end
-  if not file_exists(PATH_RENAME_SRC) then
-    local f = assert(io.open(PATH_RENAME_SRC, "wb"))
-    f:write("rename-source")
-    f:close()
-  end
-  if not file_exists(PATH_LOADLIB_STUB) then
-    local f = assert(io.open(PATH_LOADLIB_STUB, "wb"))
-    f:write("not-a-dll")
-    f:close()
-  end
+  ensure_fixture(BASE .. ".txt", "fixture-content")
+  ensure_fixture(BASE .. ".lua", "return 'lua-fixture-ok'")
+  ensure_fixture(PATH_RENAME_SRC, "rename-source")
+  ensure_fixture(PATH_LOADLIB_STUB, "not-a-dll")
 
   test("io.open read trusted Unicode fixture", function()
     local data = read_all(BASE .. ".txt")
@@ -181,6 +174,9 @@ local function run_suite()
   test("os.getenv Unicode value", function()
     local val = os.getenv("IAT_TEST_VAR")
     assert(type(val) == "string" and #val > 0, "unexpected env value: " .. tostring(val))
+    if has_non_ascii(val) then
+      assert(val == NAME, "unexpected Unicode env value: " .. tostring(val))
+    end
   end)
 
   test("package.loadlib Unicode C path", function()
