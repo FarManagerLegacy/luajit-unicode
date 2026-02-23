@@ -27,7 +27,7 @@ case "$TARGET_ARCH" in
   arm64)
     export PATH="/mingw64/bin:$PATH"
     CROSS="${CROSS:-}"
-    # Use host-executable clang with explicit arm64 Windows target flags.
+    # Use x86_64 host-executable clang with explicit arm64 Windows target flags.
     CC_BIN="${CC:-clang}"
     HOST_CC="${HOST_CC:-gcc}"
     TARGET_FLAGS_DEFAULT="--target=aarch64-w64-windows-gnu"
