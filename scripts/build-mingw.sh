@@ -38,7 +38,7 @@ cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
 if ! command -v "${CROSS}gcc" >/dev/null 2>&1; then
   if [ -n "$CROSS" ]; then
-    echo "Warning: toolchain '${CROSS}gcc' not found, falling back to native gcc from PATH" >&2
+    echo "Warning: cross-compiler '${CROSS}gcc' not found. Falling back to native gcc from PATH; TARGET_ARCH=$TARGET_ARCH may mismatch." >&2
   fi
   CROSS=""
 fi
@@ -48,7 +48,7 @@ if command -v "${CROSS}strip" >/dev/null 2>&1; then
 elif command -v strip >/dev/null 2>&1; then
   TARGET_STRIP_BIN="strip"
 else
-  echo "strip tool not found for TARGET_ARCH=$TARGET_ARCH" >&2
+  echo "Error: strip tool not found (tried: ${CROSS}strip, strip) for TARGET_ARCH=$TARGET_ARCH. Install binutils." >&2
   exit 1
 fi
 
