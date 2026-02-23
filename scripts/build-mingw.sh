@@ -9,6 +9,7 @@ TARGET_ARCH="${TARGET_ARCH:-x64}"
 
 case "$TARGET_ARCH" in
   win32)
+    export PATH="/mingw32/bin:$PATH"
     CROSS="${CROSS:-i686-w64-mingw32-}"
     HOST_CC="${HOST_CC:-gcc -m32}"
     ;;
@@ -17,6 +18,7 @@ case "$TARGET_ARCH" in
     HOST_CC="${HOST_CC:-gcc}"
     ;;
   arm64)
+    export PATH="/clangarm64/bin:$PATH"
     CROSS="${CROSS:-aarch64-w64-mingw32-}"
     HOST_CC="${HOST_CC:-gcc}"
     ;;
@@ -33,37 +35,6 @@ fi
 
 cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
-
-DETECTED_CC="${CC:-gcc}"
-echo "[diag] gcc predefined architecture macros (host gcc: $DETECTED_CC)"
-echo | "$DETECTED_CC" -dM -E - | grep -E "__x86_64__|__i386__|__ARM|__aarch64__" || true
-echo "[diag] gcc target help (host gcc: $DETECTED_CC)"
-"$DETECTED_CC" --help=target | grep -A2 "march" || true
-
-TARGET_CC_BIN="${CROSS}gcc"
-echo "[diag] toolchain compiler: $TARGET_CC_BIN"
-if command -v "$TARGET_CC_BIN" >/dev/null 2>&1; then
-  echo "[diag] gcc predefined architecture macros (target gcc: $TARGET_CC_BIN)"
-  echo | "$TARGET_CC_BIN" -dM -E - | grep -E "__x86_64__|__i386__|__ARM|__aarch64__" || true
-  echo "[diag] gcc target help (target gcc: $TARGET_CC_BIN)"
-  "$TARGET_CC_BIN" --help=target | grep -A2 "march" || true
-fi
-
-STRIP_BIN="${CROSS}strip"
-if command -v "$STRIP_BIN" >/dev/null 2>&1; then
-  echo "[diag] strip tool: $STRIP_BIN"
-  "$STRIP_BIN" --version | head -n 1 || true
-  TARGET_STRIP_BIN="$STRIP_BIN"
-else
-  echo "[diag] strip tool not found: $STRIP_BIN, fallback to strip"
-  if ! command -v strip >/dev/null 2>&1; then
-    echo "[diag] strip tool not found ($STRIP_BIN and strip). Install binutils or ensure strip is in PATH." >&2
-    exit 1
-  fi
-  echo "[diag] fallback strip tool: $(command -v strip)"
-  strip --version | head -n 1 || true
-  TARGET_STRIP_BIN="strip"
-fi
 
 if ! grep -Eq 'lib_buffer\.o[[:space:]]+utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
   perl -0777 -i -pe 's/(lib_buffer\.o)([ \t]*\r?\nLJLIB_C=)/$1 utf8_wrappers.o$2/' "$LUAJIT_DIR/src/Makefile"
@@ -83,6 +54,5 @@ make -C "$LUAJIT_DIR/src" \
   CROSS="$CROSS" \
   TARGET_SYS=Windows \
   TARGET_CFLAGS="${TARGET_CFLAGS:-} -include utf8_wrappers.h" \
-  TARGET_STRIP="$TARGET_STRIP_BIN" \
   TARGET_ARCH= \
   "$@"

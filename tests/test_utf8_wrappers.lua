@@ -15,9 +15,8 @@ local function test(name, fn)
 end
 
 local DIR_WINDOWS = "tests\\_unicode_fixture"
--- Mixed-script sample name to catch encoding/path normalization regressions.
-local NAME = "Ελλ_中文_한국_عربي_кирил_देवनागरी"
-local BASE = DIR_WINDOWS .. "\\" .. NAME
+local NAME
+local BASE
 
 local function file_exists(path)
   local f = io.open(path, "rb")
@@ -34,6 +33,15 @@ local function read_all(path)
   local data = f:read("*a")
   f:close()
   return data
+end
+
+local function has_non_ascii(s)
+  for i = 1, #s do
+    if s:byte(i) > 127 then
+      return true
+    end
+  end
+  return false
 end
 
 local function command_ok(ret)
@@ -59,6 +67,9 @@ local function run_suite()
   local setup_ret = os.execute("cmd /c tests\\test_setup.cmd")
   assert(command_ok(setup_ret), "test_setup.cmd failed: " .. tostring(setup_ret))
   assert(file_exists(DIR_WINDOWS .. "\\setup_done.txt"), "setup_done.txt is missing")
+  NAME = read_all(DIR_WINDOWS .. "\\fixture_name.txt"):gsub("[\r\n]+$", "")
+  assert(has_non_ascii(NAME), "fixture name is not Unicode: " .. tostring(NAME))
+  BASE = DIR_WINDOWS .. "\\" .. NAME
 
   test("io.open read trusted Unicode fixture", function()
     local data = read_all(BASE .. ".txt")
@@ -86,11 +97,14 @@ local function run_suite()
     assert(mod == "lua-fixture-ok")
   end)
 
-  test("io.open write Unicode", function()
-    local path = BASE .. "_write.txt"
+  test("io.write Unicode path", function()
+    local path = BASE .. "_写入_запись.txt"
+    assert(has_non_ascii(path), "path must contain Unicode")
     local f, err = io.open(path, "wb")
     assert(f, err)
-    assert(f:write("written-by-luajit"))
+    io.output(f)
+    io.write("written-by-luajit")
+    io.output(io.stdout)
     f:close()
     assert(file_exists(path), "written file is missing")
     local data = read_all(path)
@@ -109,7 +123,8 @@ local function run_suite()
   end)
 
   test("os.remove Unicode", function()
-    local path = BASE .. "_write.txt"
+    local path = BASE .. "_写入_запись.txt"
+    assert(has_non_ascii(path), "path must contain Unicode")
     assert(file_exists(path), "precondition failed: writable file is missing")
     local ok, err = os.remove(path)
     assert(ok, err)
@@ -127,7 +142,8 @@ local function run_suite()
   end)
 
   test("os.execute Unicode command arg", function()
-    local marker = BASE .. "_exec_marker.txt"
+    local marker = BASE .. "_исполнение_تشغيل.txt"
+    assert(has_non_ascii(marker), "path must contain Unicode")
     os.remove(marker)
     local ret = os.execute('cmd /c type nul > ' .. cmd_quote(marker))
     assert(command_ok(ret), "os.execute returned " .. tostring(ret))
