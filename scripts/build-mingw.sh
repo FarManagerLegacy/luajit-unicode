@@ -46,9 +46,8 @@ if ! command -v "$CROSS_GCC" >/dev/null 2>&1; then
   CROSS=""
 fi
 
-TARGET_STRIP_CANDIDATE="${CROSS}strip"
-if command -v "$TARGET_STRIP_CANDIDATE" >/dev/null 2>&1; then
-  TARGET_STRIP_BIN="$TARGET_STRIP_CANDIDATE"
+if [ -n "$CROSS" ] && command -v "${CROSS}strip" >/dev/null 2>&1; then
+  TARGET_STRIP_BIN="${CROSS}strip"
 elif command -v strip >/dev/null 2>&1; then
   TARGET_STRIP_BIN="strip"
 else
