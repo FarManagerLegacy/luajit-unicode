@@ -11,7 +11,7 @@ case "$TARGET_ARCH" in
   win32)
     export PATH="/mingw32/bin:$PATH"
     CROSS="${CROSS:-i686-w64-mingw32-}"
-    HOST_CC="${HOST_CC:-gcc -m32}"
+    HOST_CC="${HOST_CC:-gcc}"
     ;;
   x64)
     CROSS="${CROSS:-x86_64-w64-mingw32-}"
@@ -36,6 +36,19 @@ fi
 cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
+if ! command -v "${CROSS}gcc" >/dev/null 2>&1; then
+  CROSS=""
+fi
+
+if command -v "${CROSS}strip" >/dev/null 2>&1; then
+  TARGET_STRIP_BIN="${CROSS}strip"
+elif command -v strip >/dev/null 2>&1; then
+  TARGET_STRIP_BIN="strip"
+else
+  echo "strip tool not found for TARGET_ARCH=$TARGET_ARCH" >&2
+  exit 1
+fi
+
 if ! grep -Eq 'lib_buffer\.o[[:space:]]+utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
   perl -0777 -i -pe 's/(lib_buffer\.o)([ \t]*\r?\nLJLIB_C=)/$1 utf8_wrappers.o$2/' "$LUAJIT_DIR/src/Makefile"
   if ! grep -Eq 'lib_buffer\.o[[:space:]]+utf8_wrappers\.o' "$LUAJIT_DIR/src/Makefile"; then
@@ -55,5 +68,6 @@ make -C "$LUAJIT_DIR/src" \
   CROSS="$CROSS" \
   TARGET_SYS=Windows \
   TARGET_CFLAGS="${TARGET_CFLAGS:-} -include utf8_wrappers.h" \
+  TARGET_STRIP="$TARGET_STRIP_BIN" \
   TARGET_ARCH= \
   "$@"

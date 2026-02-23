@@ -9,7 +9,7 @@
  @if errorlevel 1 goto :BAD
  @if "%1"=="mixed" goto :STATICLIB
 -%LJLINK% /DLL /OUT:%LJDLLNAME% lj_*.obj lib_*.obj
-+%LJLINK% /DLL /OUT:%LJDLLNAME% lj_*.obj lib_*.obj utf8_wrappers.obj
++%LJLINK% /DLL /OUT:%LJDLLNAME% lj_*.obj lib_*.obj utf8_wrappers.obj legacy_stdio_definitions.lib ucrt.lib
  @if errorlevel 1 goto :BAD
  @goto :MTDLL
  :STATIC
@@ -28,7 +28,7 @@
  @if errorlevel 1 goto :BAD
  @if "%2"=="mixed" goto :AMALGSTATICLIB
 -%LJLINK% /DLL /OUT:%LJDLLNAME% ljamalg.obj lj_vm.obj
-+%LJLINK% /DLL /OUT:%LJDLLNAME% ljamalg.obj utf8_wrappers.obj lj_vm.obj
++%LJLINK% /DLL /OUT:%LJDLLNAME% ljamalg.obj utf8_wrappers.obj lj_vm.obj legacy_stdio_definitions.lib ucrt.lib
  @if errorlevel 1 goto :BAD
  @goto :MTDLL
  :AMALGSTATIC
