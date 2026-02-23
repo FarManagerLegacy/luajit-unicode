@@ -173,7 +173,8 @@ local function run_suite()
 
   test("os.getenv Unicode value", function()
     local val = os.getenv("IAT_TEST_VAR")
-    assert(type(val) == "string" and #val > 0, "unexpected env value: " .. tostring(val))
+    assert(type(val) == "string", "unexpected env value type: " .. tostring(val))
+    assert(val ~= "", "unexpected empty env value")
     if has_non_ascii(val) then
       assert(val == NAME, "unexpected Unicode env value: " .. tostring(val))
     end
