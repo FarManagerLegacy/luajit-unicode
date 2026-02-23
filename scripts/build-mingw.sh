@@ -36,20 +36,22 @@ fi
 cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
-if ! command -v "${CROSS}gcc" >/dev/null 2>&1; then
+CROSS_GCC="${CROSS}gcc"
+CROSS_STRIP="${CROSS}strip"
+if ! command -v "$CROSS_GCC" >/dev/null 2>&1; then
   if [ -n "$CROSS" ]; then
-    echo "Warning: cross-compiler '${CROSS}gcc' not found." >&2
-    echo "Falling back to native gcc from PATH may cause target architecture mismatch." >&2
+    echo "Warning: cross-compiler '$CROSS_GCC' not found." >&2
+    echo "Continuing with native gcc from PATH (MSYS2 target PATH fallback)." >&2
   fi
   CROSS=""
 fi
 
-if command -v "${CROSS}strip" >/dev/null 2>&1; then
-  TARGET_STRIP_BIN="${CROSS}strip"
+if command -v "$CROSS_STRIP" >/dev/null 2>&1; then
+  TARGET_STRIP_BIN="$CROSS_STRIP"
 elif command -v strip >/dev/null 2>&1; then
   TARGET_STRIP_BIN="strip"
 else
-  echo "Error: strip tool not found (tried: ${CROSS}strip, strip)." >&2
+  echo "Error: strip tool not found (tried: $CROSS_STRIP, strip)." >&2
   echo "Install binutils or the matching mingw-w64 binutils package." >&2
   exit 1
 fi
