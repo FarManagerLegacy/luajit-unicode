@@ -74,7 +74,11 @@ local function ensure_fixture(path, content)
     return
   end
   local f = assert(io.open(path, "wb"))
-  f:write(content)
+  local ok, err = f:write(content)
+  if not ok then
+    f:close()
+    error(err)
+  end
   f:close()
 end
 
@@ -173,7 +177,7 @@ local function run_suite()
 
   test("os.getenv Unicode value", function()
     local val = os.getenv("IAT_TEST_VAR")
-    assert(type(val) == "string", "unexpected env value type: " .. tostring(val))
+    assert(type(val) == "string", "unexpected env value type: expected string")
     assert(val ~= "", "unexpected empty env value")
     if has_non_ascii(val) then
       assert(val == NAME, "unexpected Unicode env value: " .. tostring(val))
