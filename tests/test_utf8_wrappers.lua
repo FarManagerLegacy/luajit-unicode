@@ -74,8 +74,8 @@ local function ensure_fixture(path, content)
     return
   end
   local f = assert(io.open(path, "wb"))
-  local ok, err = f:write(content)
-  if not ok then
+  local success, err = f:write(content)
+  if success == nil then
     f:close()
     error(err)
   end
