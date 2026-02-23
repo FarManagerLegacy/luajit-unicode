@@ -49,6 +49,7 @@ if [ "${PREPARE_ONLY:-0}" = "1" ]; then
   exit 0
 fi
 
+# Avoid leaking wrapper TARGET_ARCH env into LuaJIT Makefile internals.
 make -C "$LUAJIT_DIR/src" \
   HOST_CC="$HOST_CC" \
   CROSS="$CROSS" \

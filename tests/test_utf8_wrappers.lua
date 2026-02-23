@@ -15,6 +15,7 @@ local function test(name, fn)
 end
 
 local DIR_WINDOWS = "tests\\_unicode_fixture"
+-- Populated from fixture_name.txt created by test_setup.cmd.
 local NAME
 local BASE
 
