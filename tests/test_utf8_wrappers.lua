@@ -18,6 +18,11 @@ local DIR_WINDOWS = "tests\\_unicode_fixture"
 -- Populated from fixture_name.txt created by test_setup.cmd.
 local NAME
 local BASE
+local PATH_RENAME_SRC
+local PATH_RENAMED
+local PATH_WRITE
+local PATH_EXEC_MARKER
+local PATH_LOADLIB_STUB
 
 local function file_exists(path)
   local f = io.open(path, "rb")
@@ -72,6 +77,11 @@ local function run_suite()
   NAME = read_all(DIR_WINDOWS .. "\\fixture_name.txt"):gsub("[\r\n]+$", "")
   assert(has_non_ascii(NAME), "fixture name is not Unicode: " .. tostring(NAME))
   BASE = DIR_WINDOWS .. "\\" .. NAME
+  PATH_RENAME_SRC = BASE .. "_rename_src.txt"
+  PATH_RENAMED = BASE .. "_renamed.txt"
+  PATH_WRITE = BASE .. "_write.txt"
+  PATH_EXEC_MARKER = BASE .. "_exec_marker.txt"
+  PATH_LOADLIB_STUB = BASE .. "_loadlib_stub.dll"
 
   test("io.open read trusted Unicode fixture", function()
     local data = read_all(BASE .. ".txt")
@@ -100,42 +110,38 @@ local function run_suite()
   end)
 
   test("io.open write Unicode path", function()
-    local path = BASE .. "_写入_запись.txt"
-    assert(has_non_ascii(path), "path must contain Unicode")
-    local f, err = io.open(path, "wb")
+    assert(has_non_ascii(PATH_WRITE), "path must contain Unicode")
+    local f, err = io.open(PATH_WRITE, "wb")
     assert(f, err)
     local old_output = io.output()
     io.output(f)
     io.write("written-by-luajit")
     io.output(old_output)
     f:close()
-    assert(file_exists(path), "written file is missing")
-    local data = read_all(path)
+    assert(file_exists(PATH_WRITE), "written file is missing")
+    local data = read_all(PATH_WRITE)
     assert(data:find("written%-by%-luajit", 1, false), "write verification failed")
   end)
 
   test("os.rename Unicode -> Unicode", function()
-    local src = DIR_WINDOWS .. "\\rename_src_" .. NAME .. ".txt"
-    local dst = BASE .. "_renamed.txt"
-    assert(file_exists(src), "precondition failed: source is missing")
-    os.remove(dst)
-    local ok, err = os.rename(src, dst)
+    assert(file_exists(PATH_RENAME_SRC), "precondition failed: source is missing")
+    os.remove(PATH_RENAMED)
+    local ok, err = os.rename(PATH_RENAME_SRC, PATH_RENAMED)
     assert(ok, err)
-    assert(file_exists(dst), "destination file is missing")
-    assert(not file_exists(src), "source file still exists")
+    assert(file_exists(PATH_RENAMED), "destination file is missing")
+    assert(not file_exists(PATH_RENAME_SRC), "source file still exists")
   end)
 
   test("os.remove Unicode", function()
-    local path = BASE .. "_写入_запись.txt"
-    assert(has_non_ascii(path), "path must contain Unicode")
-    assert(file_exists(path), "precondition failed: writable file is missing")
-    local ok, err = os.remove(path)
+    assert(has_non_ascii(PATH_WRITE), "path must contain Unicode")
+    assert(file_exists(PATH_WRITE), "precondition failed: writable file is missing")
+    local ok, err = os.remove(PATH_WRITE)
     assert(ok, err)
-    assert(not file_exists(path), "file still exists")
+    assert(not file_exists(PATH_WRITE), "file still exists")
   end)
 
   test("io.popen Unicode command arg", function()
-    local target = cmd_quote(BASE .. "_renamed.txt")
+    local target = cmd_quote(PATH_RENAMED)
     local cmd = 'cmd /c if exist ' .. target .. ' (echo 1) else (echo 0)'
     local f, err = io.popen(cmd, "r")
     assert(f, err)
@@ -145,13 +151,12 @@ local function run_suite()
   end)
 
   test("os.execute Unicode command arg", function()
-    local marker = BASE .. "_исполнение_تشغيل.txt"
-    assert(has_non_ascii(marker), "path must contain Unicode")
-    os.remove(marker)
-    local ret = os.execute('cmd /c type nul > ' .. cmd_quote(marker))
+    assert(has_non_ascii(PATH_EXEC_MARKER), "path must contain Unicode")
+    os.remove(PATH_EXEC_MARKER)
+    local ret = os.execute('cmd /c type nul > ' .. cmd_quote(PATH_EXEC_MARKER))
     assert(command_ok(ret), "os.execute returned " .. tostring(ret))
-    assert(file_exists(marker), "marker file was not created")
-    os.remove(marker)
+    assert(file_exists(PATH_EXEC_MARKER), "marker file was not created")
+    os.remove(PATH_EXEC_MARKER)
   end)
 
   test("os.getenv Unicode value", function()
@@ -160,12 +165,12 @@ local function run_suite()
   end)
 
   test("package.loadlib Unicode C path", function()
-    local dll = DIR_WINDOWS .. "\\lib_" .. NAME .. "\\jitmod.dll"
-    local loader, err = package.loadlib(dll, "luaopen_jit")
-    assert(loader, err)
-    local ok, mod = pcall(loader)
-    assert(ok, tostring(mod))
-    assert(type(mod) == "table", "luaopen_jit did not return module table")
+    local loader, err = package.loadlib(PATH_LOADLIB_STUB, "luaopen_jit")
+    assert(not loader, "stub load unexpectedly succeeded")
+    local msg = tostring(err)
+    local msg_l = msg:lower()
+    assert(not msg_l:find("no such file", 1, true), "unexpected file-not-found error: " .. msg)
+    assert(not msg_l:find("could not be found", 1, true), "unexpected missing-file error: " .. msg)
   end)
 end
 

@@ -63,6 +63,7 @@ jobs:
             make
             mingw-w64-x86_64-gcc
             mingw-w64-i686-gcc
+            mingw-w64-x86_64-clang
             mingw-w64-clang-aarch64-gcc
 
       - name: Resolve Visual Studio installation (MSVC)
@@ -93,11 +94,12 @@ jobs:
 
       - name: Run UTF-8 wrapper tests (MinGW)
         if: matrix.toolchain == 'mingw' && matrix.run_tests
-        shell: msys2 {0}
-        env:
-          IAT_TEST_VAR: Ελλ_中文_한국_عربي_кирил_देवनागरी
-          LUAJIT_DLL: .work/LuaJIT/src/lua51.dll
-        run: ./.work/LuaJIT/src/luajit.exe tests/test_utf8_wrappers.lua
+        shell: cmd
+        run: |
+          chcp 65001 >nul
+          set IAT_TEST_VAR=Ελλ_中文_한국_عربي_кирил_देवनागरी
+          set LUAJIT_DLL=.work\LuaJIT\src\lua51.dll
+          .work\LuaJIT\src\luajit.exe tests\test_utf8_wrappers.lua
 
       - name: Run UTF-8 wrapper tests (MSVC)
         if: matrix.toolchain == 'msvc' && matrix.run_tests

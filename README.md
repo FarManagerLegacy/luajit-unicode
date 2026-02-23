@@ -105,7 +105,8 @@ Useful variables:
 
 - PR CI builds patched LuaJIT on Windows for MinGW/MSVC and runs UTF-8 wrapper tests
   for runnable targets (`win32`, `x64`).
-- ARM64 jobs are built in CI and release workflows, but runtime tests are skipped there.
+- ARM64 jobs are built in CI and release workflows.
+- MSVC ARM64 runtime tests are currently skipped in CI.
 - Release workflow can be started manually (`workflow_dispatch`) with:
   - `luajit_ref` (LuaJIT ref to build from),
   - `release_tag` (tag for the GitHub Release),
@@ -114,6 +115,17 @@ Useful variables:
 Test file used in CI:
 - `tests/test_utf8_wrappers.lua`
 - Fixture setup script: `tests/test_setup.cmd`
+
+### ARM/ARM64 build-and-test feasibility (analysis only)
+
+- **MSVC ARM64 build:** works on `windows-latest` using `vcvarsall amd64_arm64`.
+- **MSVC ARM64 runtime tests:** require reliable execution policy for ARM64 artifacts
+  on the runner image and stable UTF-8 console/environment behavior. Kept disabled
+  for now in CI to avoid blocking unrelated PRs.
+- **MinGW ARM64 build:** can be driven with host clang cross-targeting
+  (`--target=aarch64-w64-windows-gnu`) when x86_64 clang tools are installed.
+- **MinGW ARM64 runtime tests:** not enabled yet; practical coverage needs either a
+  native ARM64 Windows runner (preferred) or a validated emulation strategy.
 
 ## Upstream hook proposal (to remove local patches later)
 
