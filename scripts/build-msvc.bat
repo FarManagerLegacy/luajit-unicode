@@ -61,7 +61,8 @@ rem Force wrapper header for all C translation units compiled by msvcbuild.bat.
 rem Wrapper macros only activate in lib_* units where corresponding defines are present.
 set "CL=/FIutf8_wrappers.h /I. %CL%"
 rem Required for newer MSVC/UCRT toolchains (VS2015+) when wide stdio helpers
-rem are linked, resolving legacy stdio symbol references.
+rem (_wfopen/_wfreopen/_wpopen/_wsystem) are linked, resolving legacy stdio
+rem symbol references such as __conio_common_vcwscanf.
 set "LINK=legacy_stdio_definitions.lib ucrt.lib %LINK%"
 
 pushd "%LUAJIT_DIR%\src"
