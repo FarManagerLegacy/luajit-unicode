@@ -11,7 +11,7 @@ case "$TARGET_ARCH" in
   win32)
     export PATH="/mingw32/bin:$PATH"
     CROSS="${CROSS:-i686-w64-mingw32-}"
-    HOST_CC="${HOST_CC:-gcc}"
+    HOST_CC="${HOST_CC:-gcc -m32}"
     ;;
   x64)
     CROSS="${CROSS:-x86_64-w64-mingw32-}"
@@ -37,6 +37,9 @@ cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
 if ! command -v "${CROSS}gcc" >/dev/null 2>&1; then
+  if [ -n "$CROSS" ]; then
+    echo "Warning: toolchain '${CROSS}gcc' not found, falling back to native gcc from PATH" >&2
+  fi
   CROSS=""
 fi
 
