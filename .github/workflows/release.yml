@@ -36,9 +36,6 @@ jobs:
           - toolchain: mingw
             target_arch: x64
             run_tests: true
-          - toolchain: mingw
-            target_arch: arm64
-            run_tests: false
           - toolchain: msvc
             target_arch: win32
             run_tests: true

@@ -18,8 +18,6 @@ jobs:
             run_tests: true
           - target_arch: x64
             run_tests: true
-          - target_arch: arm64
-            run_tests: false
 
     steps:
       - uses: actions/checkout@v4
