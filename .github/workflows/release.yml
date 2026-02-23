@@ -86,7 +86,7 @@ jobs:
 
       - name: Build patched LuaJIT (MSVC)
         if: matrix.toolchain == 'msvc'
-        shell: msys2 {0}
+        shell: cmd
         run: |
           set LUAJIT_REF=%LUAJIT_REF%
           set TARGET_ARCH=${{ matrix.target_arch }}
