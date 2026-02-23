@@ -10,17 +10,24 @@ TARGET_ARCH="${TARGET_ARCH:-x64}"
 case "$TARGET_ARCH" in
   win32)
     export PATH="/mingw32/bin:$PATH"
-    CROSS="${CROSS:-i686-w64-mingw32-}"
+    CROSS="${CROSS:-}"
+    CC_BIN="${CC:-gcc}"
     HOST_CC="${HOST_CC:-gcc -m32}"
+    TARGET_FLAGS_DEFAULT=""
     ;;
   x64)
-    CROSS="${CROSS:-x86_64-w64-mingw32-}"
+    export PATH="/mingw64/bin:$PATH"
+    CROSS="${CROSS:-}"
+    CC_BIN="${CC:-gcc}"
     HOST_CC="${HOST_CC:-gcc}"
+    TARGET_FLAGS_DEFAULT=""
     ;;
   arm64)
-    export PATH="/clangarm64/bin:$PATH"
-    CROSS="${CROSS:-aarch64-w64-mingw32-}"
+    export PATH="/mingw64/bin:$PATH"
+    CROSS="${CROSS:-}"
+    CC_BIN="${CC:-clang}"
     HOST_CC="${HOST_CC:-gcc}"
+    TARGET_FLAGS_DEFAULT="--target=aarch64-w64-windows-gnu"
     ;;
   *)
     echo "Unsupported TARGET_ARCH: $TARGET_ARCH (expected: win32, x64, arm64)" >&2
@@ -36,28 +43,20 @@ fi
 cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
-CROSS_GCC="${CROSS}gcc"
-ORIG_CROSS="$CROSS"
-ORIG_CROSS_STRIP="${ORIG_CROSS}strip"
-if ! command -v "$CROSS_GCC" >/dev/null 2>&1; then
-  if [ -n "$CROSS" ]; then
-    echo "Warning: cross-compiler '$CROSS_GCC' not found." >&2
-    echo "Continuing with native gcc from PATH (expected for MSYS2 target-arch PATH selection)." >&2
-  fi
-  CROSS=""
+TARGET_CC_BIN="${CROSS}${CC_BIN}"
+if ! command -v "$TARGET_CC_BIN" >/dev/null 2>&1; then
+  echo "Compiler not found: $TARGET_CC_BIN" >&2
+  exit 1
 fi
 
-if [ -n "$ORIG_CROSS" ] && command -v "$ORIG_CROSS_STRIP" >/dev/null 2>&1; then
-  TARGET_STRIP_BIN="$ORIG_CROSS_STRIP"
+if [ -n "$CROSS" ] && command -v "${CROSS}strip" >/dev/null 2>&1; then
+  TARGET_STRIP_BIN="${CROSS}strip"
 elif command -v strip >/dev/null 2>&1; then
   TARGET_STRIP_BIN="strip"
+elif command -v llvm-strip >/dev/null 2>&1; then
+  TARGET_STRIP_BIN="llvm-strip"
 else
-  if [ "$ORIG_CROSS_STRIP" = "strip" ]; then
-    echo "Error: strip tool not found (tried: strip)." >&2
-  else
-    echo "Error: strip tool not found (tried: $ORIG_CROSS_STRIP, strip)." >&2
-  fi
-  echo "Install binutils or the matching mingw-w64 binutils package." >&2
+  echo "Error: strip tool not found (tried: ${CROSS}strip, strip, llvm-strip)." >&2
   exit 1
 fi
 
@@ -76,8 +75,10 @@ fi
 
 # Avoid leaking external TARGET_ARCH env into LuaJIT Makefile internals.
 make -C "$LUAJIT_DIR/src" \
+  CC="$CC_BIN" \
   HOST_CC="$HOST_CC" \
   CROSS="$CROSS" \
+  TARGET_FLAGS="${TARGET_FLAGS:-$TARGET_FLAGS_DEFAULT}" \
   TARGET_SYS=Windows \
   TARGET_CFLAGS="${TARGET_CFLAGS:-} -include utf8_wrappers.h" \
   TARGET_STRIP="$TARGET_STRIP_BIN" \

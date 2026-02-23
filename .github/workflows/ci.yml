@@ -34,6 +34,7 @@ jobs:
             make
             mingw-w64-x86_64-gcc
             mingw-w64-i686-gcc
+            mingw-w64-x86_64-clang
             mingw-w64-clang-aarch64-gcc
 
       - name: Build patched LuaJIT (MinGW)
@@ -68,7 +69,7 @@ jobs:
           - target_arch: x64
             run_tests: true
           - target_arch: arm64
-            run_tests: false
+            run_tests: true
 
     steps:
       - uses: actions/checkout@v4
