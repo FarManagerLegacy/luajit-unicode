@@ -43,12 +43,16 @@ jobs:
 
       - name: Run UTF-8 wrapper tests (MinGW)
         if: matrix.run_tests
-        shell: cmd
+        shell: msys2 {0}
         run: |
-          chcp 65001 >nul
-          set IAT_TEST_VAR=Ελλ_中文_한국_عربي_кирил_देवनागरी
-          set LUAJIT_DLL=.work\LuaJIT\src\lua51.dll
-          .work\LuaJIT\src\luajit.exe tests\test_utf8_wrappers.lua
+          if [ "${{ matrix.target_arch }}" = "win32" ]; then
+            export PATH="/mingw32/bin:$PATH"
+          else
+            export PATH="/mingw64/bin:$PATH"
+          fi
+          IAT_TEST_VAR=Ελλ_中文_한국_عربي_кирил_деवनागरी \
+          LUAJIT_DLL=.work/LuaJIT/src/lua51.dll \
+          ./.work/LuaJIT/src/luajit.exe tests/test_utf8_wrappers.lua
 
       - name: Upload MinGW artifacts
         uses: actions/upload-artifact@v4

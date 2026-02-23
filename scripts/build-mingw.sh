@@ -30,7 +30,7 @@ case "$TARGET_ARCH" in
     # Use x86_64 host-executable clang with explicit arm64 Windows target flags.
     CC_BIN="${CC:-clang}"
     HOST_CC="${HOST_CC:-gcc}"
-    TARGET_FLAGS_DEFAULT="--target=aarch64-w64-windows-gnu"
+    TARGET_FLAGS_DEFAULT="--target=aarch64-w64-windows-gnu -DLUAJIT_NUMMODE=2"
     ;;
   *)
     echo "Unsupported TARGET_ARCH: $TARGET_ARCH (expected: win32, x64, arm64)" >&2
