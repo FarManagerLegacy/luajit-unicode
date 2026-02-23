@@ -105,7 +105,7 @@ Useful variables:
 
 - PR CI builds patched LuaJIT on Windows for MinGW/MSVC and runs UTF-8 wrapper tests
   for runnable targets (`win32`, `x64`).
-- MinGW ARM64 CI job is temporarily disabled due current upstream LuaJIT ARM64 build
+- MinGW ARM64 CI job is temporarily disabled due to current upstream LuaJIT ARM64 build
   incompatibility in this cross-build runner environment.
 - MSVC ARM64 runtime tests are currently skipped in CI.
 - Release workflow can be started manually (`workflow_dispatch`) with:
