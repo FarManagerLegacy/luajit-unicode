@@ -1,0 +1,43 @@
+--- a/src/msvcbuild.bat
++++ b/src/msvcbuild.bat
+@@ -110,32 +110,32 @@
+ @set LJLINK=%LJLINK% %LJLINKTYPE% %LJLINKTARGET%
+ @if "%1"=="amalg" goto :AMALGDLL
+ @if "%1"=="static" goto :STATIC
+-%LJCOMPILE% %LJDYNBUILD% lj_*.c lib_*.c
++%LJCOMPILE% %LJDYNBUILD% lj_*.c lib_*.c utf8_wrappers.c
+ @if errorlevel 1 goto :BAD
+ @if "%1"=="mixed" goto :STATICLIB
+-%LJLINK% /DLL /OUT:%LJDLLNAME% lj_*.obj lib_*.obj
++%LJLINK% /DLL /OUT:%LJDLLNAME% lj_*.obj lib_*.obj utf8_wrappers.obj legacy_stdio_definitions.lib ucrt.lib
+ @if errorlevel 1 goto :BAD
+ @goto :MTDLL
+ :STATIC
+-%LJCOMPILE% lj_*.c lib_*.c
++%LJCOMPILE% lj_*.c lib_*.c utf8_wrappers.c
+ @if errorlevel 1 goto :BAD
+ :STATICLIB
+-%LJLIB% /OUT:%LJLIBNAME% lj_*.obj lib_*.obj
++%LJLIB% /OUT:%LJLIBNAME% lj_*.obj lib_*.obj utf8_wrappers.obj
+ @if errorlevel 1 goto :BAD
+ @goto :MTDLL
+ :AMALGDLL
+ @if "%2"=="static" goto :AMALGSTATIC
+-%LJCOMPILE% %LJDYNBUILD% ljamalg.c
++%LJCOMPILE% %LJDYNBUILD% ljamalg.c utf8_wrappers.c
+ @if errorlevel 1 goto :BAD
+ @if "%2"=="mixed" goto :AMALGSTATICLIB
+-%LJLINK% /DLL /OUT:%LJDLLNAME% ljamalg.obj lj_vm.obj
++%LJLINK% /DLL /OUT:%LJDLLNAME% ljamalg.obj utf8_wrappers.obj lj_vm.obj legacy_stdio_definitions.lib ucrt.lib
+ @if errorlevel 1 goto :BAD
+ @goto :MTDLL
+ :AMALGSTATIC
+-%LJCOMPILE% ljamalg.c
++%LJCOMPILE% ljamalg.c utf8_wrappers.c
+ @if errorlevel 1 goto :BAD
+ :AMALGSTATICLIB
+-%LJLIB% /OUT:%LJLIBNAME% ljamalg.obj lj_vm.obj
++%LJLIB% /OUT:%LJLIBNAME% ljamalg.obj utf8_wrappers.obj lj_vm.obj
+ @if errorlevel 1 goto :BAD
+ :MTDLL
+ if exist %LJDLLNAME%.manifest^
