@@ -37,7 +37,8 @@ cp "$ROOT_DIR/src/utf8_wrappers.c" "$LUAJIT_DIR/src/utf8_wrappers.c"
 cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
 CROSS_GCC="${CROSS}gcc"
-ORIG_CROSS_STRIP="${CROSS}strip"
+ORIG_CROSS="$CROSS"
+ORIG_CROSS_STRIP="${ORIG_CROSS}strip"
 if ! command -v "$CROSS_GCC" >/dev/null 2>&1; then
   if [ -n "$CROSS" ]; then
     echo "Warning: cross-compiler '$CROSS_GCC' not found." >&2
@@ -46,12 +47,16 @@ if ! command -v "$CROSS_GCC" >/dev/null 2>&1; then
   CROSS=""
 fi
 
-if [ -n "$CROSS" ] && command -v "${CROSS}strip" >/dev/null 2>&1; then
-  TARGET_STRIP_BIN="${CROSS}strip"
+if [ -n "$ORIG_CROSS" ] && command -v "$ORIG_CROSS_STRIP" >/dev/null 2>&1; then
+  TARGET_STRIP_BIN="$ORIG_CROSS_STRIP"
 elif command -v strip >/dev/null 2>&1; then
   TARGET_STRIP_BIN="strip"
 else
-  echo "Error: strip tool not found (tried: $ORIG_CROSS_STRIP, strip)." >&2
+  if [ "$ORIG_CROSS_STRIP" = "strip" ]; then
+    echo "Error: strip tool not found (tried: strip)." >&2
+  else
+    echo "Error: strip tool not found (tried: $ORIG_CROSS_STRIP, strip)." >&2
+  fi
   echo "Install binutils or the matching mingw-w64 binutils package." >&2
   exit 1
 fi
