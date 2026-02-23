@@ -15,6 +15,7 @@ local function test(name, fn)
 end
 
 local DIR_WINDOWS = "tests\\_unicode_fixture"
+-- Keep in sync with codepoint-generated name in tests/test_setup.cmd.
 local NAME = "Ελλ_中文_한국_عربي_кирил_देवनागरी"
 local BASE
 local PATH_RENAME_SRC
