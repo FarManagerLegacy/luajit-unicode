@@ -75,7 +75,7 @@ local function ensure_fixture(path, content)
   end
   local f = assert(io.open(path, "wb"))
   local success, err = f:write(content)
-  if success == nil then
+  if not success then
     f:close()
     error(err)
   end
@@ -179,7 +179,9 @@ local function run_suite()
     local val = os.getenv("IAT_TEST_VAR")
     assert(type(val) == "string", "unexpected env value type: expected string")
     assert(val ~= "", "unexpected empty env value")
-    if has_non_ascii(val) then
+    if not has_non_ascii(val) then
+      io.write("[WARN] IAT_TEST_VAR lost Unicode in this shell environment\n")
+    else
       assert(val == NAME, "unexpected Unicode env value: " .. tostring(val))
     end
   end)
