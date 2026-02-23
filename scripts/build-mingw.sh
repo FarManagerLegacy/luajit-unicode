@@ -38,7 +38,7 @@ cp "$ROOT_DIR/src/utf8_wrappers.h" "$LUAJIT_DIR/src/utf8_wrappers.h"
 
 if ! command -v "${CROSS}gcc" >/dev/null 2>&1; then
   if [ -n "$CROSS" ]; then
-    echo "Warning: cross-compiler '${CROSS}gcc' not found. Falling back to native gcc from PATH may cause target architecture mismatch." >&2
+    echo "Warning: cross-compiler '${CROSS}gcc' not found (install matching mingw-w64 toolchain package). Falling back to native gcc from PATH may cause target architecture mismatch." >&2
   fi
   CROSS=""
 fi
