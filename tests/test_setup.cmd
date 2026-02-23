@@ -16,7 +16,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$ErrorActionPreference='Stop';" ^
   "$dir='tests/_unicode_fixture';" ^
   "$codes=@(0x395,0x3bb,0x3bb,0x5f,0x4e2d,0x6587,0x5f,0xd55c,0xad6d,0x5f,0x639,0x631,0x628,0x64a,0x5f,0x43a,0x438,0x440,0x438,0x43b,0x5f,0x926,0x947,0x935,0x928,0x93e,0x917,0x930,0x940);" ^
-  "# Greek + Chinese + Korean + Arabic + Cyrillic + Devanagari sample." ^
+  "# Greek + Chinese + Korean + Arabic + Cyrillic + Devanagari sample (Ελλ_中文_한국_عربي_кирил_देवनागरी)." ^
   "$name = -join ($codes | ForEach-Object { [char]$_ });" ^
   "$dll=$env:LUAJIT_DLL;" ^
   "Set-Content -LiteralPath (Join-Path $dir ($name + '.txt')) -Value 'fixture-content' -Encoding UTF8;" ^

@@ -68,6 +68,7 @@ local function run_suite()
   local setup_ret = os.execute("cmd /c tests\\test_setup.cmd")
   assert(command_ok(setup_ret), "test_setup.cmd failed: " .. tostring(setup_ret))
   assert(file_exists(DIR_WINDOWS .. "\\setup_done.txt"), "setup_done.txt is missing")
+  assert(file_exists(DIR_WINDOWS .. "\\fixture_name.txt"), "fixture_name.txt is missing")
   NAME = read_all(DIR_WINDOWS .. "\\fixture_name.txt"):gsub("[\r\n]+$", "")
   assert(has_non_ascii(NAME), "fixture name is not Unicode: " .. tostring(NAME))
   BASE = DIR_WINDOWS .. "\\" .. NAME

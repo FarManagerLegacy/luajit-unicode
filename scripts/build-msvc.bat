@@ -60,6 +60,7 @@ if errorlevel 1 (
 rem Force wrapper header for all C translation units compiled by msvcbuild.bat.
 rem Wrapper macros only activate in lib_* units where corresponding defines are present.
 set "CL=/FIutf8_wrappers.h /I. %CL%"
+rem Required for newer MSVC/UCRT toolchains when wide stdio helpers are linked.
 set "LINK=legacy_stdio_definitions.lib ucrt.lib %LINK%"
 
 pushd "%LUAJIT_DIR%\src"
