@@ -10,6 +10,7 @@ TARGET_ARCH="${TARGET_ARCH:-x64}"
 case "$TARGET_ARCH" in
   win32)
     export PATH="/mingw32/bin:$PATH"
+    # Use unprefixed MinGW tools selected by PATH.
     CROSS="${CROSS:-}"
     CC_BIN="${CC:-gcc}"
     HOST_CC="${HOST_CC:-gcc -m32}"
@@ -17,6 +18,7 @@ case "$TARGET_ARCH" in
     ;;
   x64)
     export PATH="/mingw64/bin:$PATH"
+    # Use unprefixed MinGW tools selected by PATH.
     CROSS="${CROSS:-}"
     CC_BIN="${CC:-gcc}"
     HOST_CC="${HOST_CC:-gcc}"
@@ -25,6 +27,7 @@ case "$TARGET_ARCH" in
   arm64)
     export PATH="/mingw64/bin:$PATH"
     CROSS="${CROSS:-}"
+    # Use host-executable clang with explicit arm64 Windows target flags.
     CC_BIN="${CC:-clang}"
     HOST_CC="${HOST_CC:-gcc}"
     TARGET_FLAGS_DEFAULT="--target=aarch64-w64-windows-gnu"
