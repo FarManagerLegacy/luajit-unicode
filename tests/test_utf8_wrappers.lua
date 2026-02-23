@@ -165,6 +165,7 @@ local function run_suite()
   end)
 
   test("package.loadlib Unicode C path", function()
+    assert(file_exists(PATH_LOADLIB_STUB), "loadlib stub fixture is missing")
     local loader, err = package.loadlib(PATH_LOADLIB_STUB, "luaopen_jit")
     assert(not loader, "stub load unexpectedly succeeded")
     local msg = tostring(err)
